@@ -61,7 +61,6 @@ int keyBeingCompared    = 0;
 char codeSequence[NUMBER_OF_KEYS]   = { '1', '8', '0', '5' };
 char keyPressed[NUMBER_OF_KEYS] = { '0', '0', '0', '0' };
 int accumulatedTimeAlarm = 0;
-int lm35SampleIndex      = 0;
 
 bool alarmLastState        = OFF;
 bool gasLastState          = OFF;
