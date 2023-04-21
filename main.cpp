@@ -36,14 +36,18 @@ typedef struct systemEvent {
 DigitalIn alarmTestButton(BUTTON1);
 DigitalIn mq2(PE_12);
 
+
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
 
 DigitalInOut sirenPin(PE_10);
 
+
+// Velocidad de transmision
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
+// ==== [Sensor de temperatura]
 AnalogIn lm35(A1);
 
 DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
@@ -54,6 +58,10 @@ DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
 bool alarmState    = OFF;
 bool incorrectCode = false;
 bool overTempDetector = OFF;
+
+int PRINTCOL = 0;
+int PRINTROW = 0;
+
 
 int numberOfIncorrectCodes = 0;
 int numberOfHashKeyReleasedEvents = 0;
@@ -137,6 +145,8 @@ void inputsInit()
 {
     lm35ReadingsArrayInit();
     alarmTestButton.mode(PullDown);
+//=====[mq2 configuracion de ]===================================
+    mq2.mode(PullUp);
     sirenPin.mode(OpenDrain);
     sirenPin.input();
     matrixKeypadInit();
@@ -546,13 +556,16 @@ char matrixKeypadScan()
     for( row=0; row<KEYPAD_NUMBER_OF_ROWS; row++ ) {
 
         for( i=0; i<KEYPAD_NUMBER_OF_ROWS; i++ ) {
-            keypadRowPins[i] = ON;
+            keypadRowPins[i] = ON;            
         }
 
         keypadRowPins[row] = OFF;
 
+
         for( col=0; col<KEYPAD_NUMBER_OF_COLS; col++ ) {
             if( keypadColPins[col] == OFF ) {
+                PRINTCOL = col;
+                PRINTROW = row;
                 return matrixKeypadIndexToCharArray[row*KEYPAD_NUMBER_OF_ROWS + col];
             }
         }
@@ -573,6 +586,7 @@ char matrixKeypadUpdate()
             matrixKeypadLastKeyPressed = keyDetected;
             accumulatedDebounceMatrixKeypadTime = 0;
             matrixKeypadState = MATRIX_KEYPAD_DEBOUNCE;
+            uartUsb.write( "Scanning\r\n\r\n", 12 );
         }
         break;
 
@@ -582,8 +596,10 @@ char matrixKeypadUpdate()
             keyDetected = matrixKeypadScan();
             if( keyDetected == matrixKeypadLastKeyPressed ) {
                 matrixKeypadState = MATRIX_KEYPAD_KEY_HOLD_PRESSED;
+                uartUsb.write( "Hold\r\n\r\n", 8 );
             } else {
                 matrixKeypadState = MATRIX_KEYPAD_SCANNING;
+                uartUsb.write( "Debounce\r\n\r\n", 12 );
             }
         }
         accumulatedDebounceMatrixKeypadTime =
@@ -597,6 +613,10 @@ char matrixKeypadUpdate()
                 keyReleased = matrixKeypadLastKeyPressed;
             }
             matrixKeypadState = MATRIX_KEYPAD_SCANNING;
+// Impresion de columna y fila            
+            printf("La columna es: %i\r\n\r\n", PRINTCOL);
+            printf("La fila es: %i\r\n\r\n", PRINTROW);
+            uartUsb.write( "Unhold\r\n\r\n", 10 );
         }
         break;
 
