@@ -2,6 +2,7 @@
 
 #include "mbed.h"
 #include "arm_book_lib.h"
+#include <vector>
 
 //=====[Defines]===============================================================
 
@@ -52,7 +53,9 @@ AnalogIn lm35(A1);
 
 DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
 DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
-
+//=====[ Definicion de vector]]=============
+//vector<DigitalOut> keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = { DigitalOut do1(PB_3), DigitalOut do2(PB_5), DigitalOut do3(PC_7), DigitalOut do4( PA_15)};
+//vector<DigitalIn> keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
 //=====[Declaration and initialization of public global variables]=============
 
 bool alarmState    = OFF;
@@ -616,6 +619,9 @@ char matrixKeypadUpdate()
 // Impresion de columna y fila            
             printf("La columna es: %i\r\n\r\n", PRINTCOL);
             printf("La fila es: %i\r\n\r\n", PRINTROW);
+            printf("El caracter es: %c\r\n\r\n", matrixKeypadIndexToCharArray[PRINTROW*KEYPAD_NUMBER_OF_ROWS + PRINTCOL]);
+            printf("La columna es: %i\r\n\r\n La fila es: %i\r\n\r\n El caracter es: %c\r\n\r\n", PRINTCOL, PRINTROW, matrixKeypadIndexToCharArray[PRINTROW*KEYPAD_NUMBER_OF_ROWS + PRINTCOL]);
+        
             uartUsb.write( "Unhold\r\n\r\n", 10 );
         }
         break;
